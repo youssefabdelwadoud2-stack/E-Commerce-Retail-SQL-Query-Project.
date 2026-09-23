@@ -1076,10 +1076,3 @@ from
   ) as x
         order by total_order asc;
 
-
-Go 
-
-/* Start from 174 */
-
-Select 
-      
