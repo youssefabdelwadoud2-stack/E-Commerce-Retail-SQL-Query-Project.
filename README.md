@@ -6,13 +6,13 @@ E-Commerce Retail SQL Query Project For Translate Business Questions Into Raw Da
 /*what is total order to every status*/
 
 
-SELECT   
+ 
+    SELECT 
            [order_status]
-    ,count([order_status]) total_order_status
-     
-FROM [Retail dataset].[dbo].[orders]
-group by [order_status]
-order by total_order_status desc;
+    ,count([order_status]) total_order_status   
+    FROM [Retail dataset].[dbo].[orders]
+    group by [order_status]
+    order by total_order_status desc;
 
 go 
 
