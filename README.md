@@ -39,10 +39,12 @@ The diagram below shows the data model of the `E-Commerce Retail dataset` And th
                                                      Database Diagrams (ERD)
 <img width="1601" height="898" alt="Screenshot (275)" src="https://github.com/user-attachments/assets/958c4494-94fc-4dd3-849a-880f7a1b42b6" />
 
+
 -
 -
 
 Table: Customers
+
 - Stores basic information about each customer and where they are located.
 - Use cases: geographic analysis, top cities or states by customers, regional sales.
 
@@ -55,6 +57,8 @@ Table: Customers
 
                                                      1- Customers Table  
 <img width="1555" height="897" alt="Screenshot (276)" src="https://github.com/user-attachments/assets/e3320ea0-3186-4f78-9feb-ed13fdd2c45d" />
+
+
 -
 -
 -
