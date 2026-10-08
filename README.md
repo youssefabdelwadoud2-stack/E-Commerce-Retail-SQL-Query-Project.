@@ -1,6 +1,44 @@
-# Retail-SQL-Query-Project-
 
-E-Commerce Retail SQL Query Project For Translate Business Questions Into Raw Data And Extract It From SQL Server Management.
+ E-Commerce Retail SQL Analytics Project
+
+-
+Overview
+- This project demonstrates how to translate real world business questions into structured SQL queries and extract actionable insights from raw data using
+Microsoft SQL Server (SSMS).
+-
+- The dataset represents an (E-Commerce retail store). I designed and built a relational database named `E-Commerce-Retail-dataset`
+- Consisting of five normalized tables: `customers`, `orders`, `order_items`, `payments`, and `products`.
+- The tables are connected through primary and foreign keys to form a clear Data Modeling (star schema), which supports analysis of customers,
+sales, products, delivery performance, and payment behavior.
+-
+Objectives
+- Design a clean relational data model for an E-commerce business.
+- Practice writing SQL queries that answer real business questions.
+- Explore customer, order, product, and payment data.
+- Build a foundation for deeper analysis (aggregations, joins, Window functions, Sub-queries, KPIs, reporting).
+-
+ Tools And Technologies
+- Microsoft SQL Server 
+- SQL Server Management Studio (SSMS)
+- Data Modeling And Clinging 
+- Database Diagrams (ERD)
+
+-
+
+<img width="1601" height="898" alt="Screenshot (275)" src="https://github.com/user-attachments/assets/958c4494-94fc-4dd3-849a-880f7a1b42b6" />
+
+-
+
+
+
+
+
+
+
+
+
+
+
 
 
 
