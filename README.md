@@ -23,9 +23,20 @@ Objectives
 - Data Modeling And Clinging 
 - Database Diagrams (ERD)
 
+
+The diagram below shows the data model of the `E-Commerce Retail dataset` And the relationships between its five tables:
+
+-  `customers` To `orders`     : one customer can place many orders (via `customer_id`).
+-  `orders` To `order_items`   : each order contains one or more items (via `order_id`).
+-  `orders` To `payments`      : each order has one or more payments (via `order_id`).
+-  `products` To `order_items` : each product can appear in many order lines (via `product_id`).
+-
+- `order_items` acts as the central `bridge table` that connects orders with products, while `orders` links customers, items, and payments together.
+
+
 -
 
-                                                Database Diagrams (ERD)
+                                                     Database Diagrams (ERD)
 <img width="1601" height="898" alt="Screenshot (275)" src="https://github.com/user-attachments/assets/958c4494-94fc-4dd3-849a-880f7a1b42b6" />
 
 -
