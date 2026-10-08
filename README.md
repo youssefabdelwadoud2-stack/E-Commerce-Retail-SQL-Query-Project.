@@ -62,14 +62,22 @@ Table: Orders
 - Contains the lifecycle of every order, from purchase to delivery.
 - Use cases: delivery performance, late deliveries, order status breakdown, monthly order trends.
 
-- `order_id` (PK) | Unique identifier for each order |
-- `customer_id` (FK) | The customer who placed the order |
-- `order_status` | Current status (e.g., delivered, invoiced) |
-- `order_purchase_timestamp` | When the order was placed |
-- `order_approved_at` | When the payment was approved |
-- `order_delivered_timestamp` | When the order was delivered |
-- `order_estimated_delivery_date` | Estimated delivery date promised to the customer |
+- `order_id` (PK) : Unique identifier for each order 
+- `customer_id` (FK) : The customer who placed the order 
+- `order_status` : Current status (e.g., delivered, invoiced) 
+- `order_purchase_timestamp` : When the order was placed 
+- `order_approved_at` : When the payment was approved 
+- `order_delivered_timestamp` : When the order was delivered 
+- `order_estimated_delivery_date` : Estimated delivery date promised to the customer 
+-
+-
 
+ 
+                                                     2- Orders Table  
+<img width="1666" height="897" alt="Screenshot (278)" src="https://github.com/user-attachments/assets/391e6cd8-b480-438c-8615-e5ce96ad6ab7" />
+
+-
+-
 
 
 
