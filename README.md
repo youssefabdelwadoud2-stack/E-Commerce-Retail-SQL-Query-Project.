@@ -160,10 +160,10 @@ Business Questions And SQL Practice
 
 Each query below follows the same structure:
 
-- 1. Business Question: the problem a stakeholder wants answered.
-- 2. Objective: why the question matters and what decision it supports.
-- 3. SQL Concepts Used: the T-SQL techniques practiced.
-- 4. Code: the query written in SQL Server Management Studio (SSMS).
+1. Business Question: the problem a stakeholder wants answered.
+2. Objective: why the question matters and what decision it supports.
+3. SQL Concepts Used: the T-SQL techniques practiced.
+4. Code: the query written in SQL Server Management Studio (SSMS).
 - 5. Result: a screenshot of the output.
 
 The goal is to practice translating business needs into SQL and to build skills in joins, aggregations, window functions, filtering, and sorting on real world
