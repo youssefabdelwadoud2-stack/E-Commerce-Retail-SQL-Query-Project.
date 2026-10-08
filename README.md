@@ -154,9 +154,18 @@ Table: Products
 
 
 
- What is total sales and AVG price to every category 
+Business Question
 
-I Used aggregation functions (SUM, AVG) , LEFT JOIN, Group By AND Order By. 
+-What are the total sales and the average item price for each product category?
+
+Objective:
+
+- Identify which product categories generate the highest revenue and compare their average price points.
+
+SQL Concepts Used:  aggregation functions`SUM()`, `AVG()`, `LEFT JOIN`, `GROUP BY`, `ORDER BY`. 
+-
+
+
    
      Select 
   
@@ -174,7 +183,8 @@ I Used aggregation functions (SUM, AVG) , LEFT JOIN, Group By AND Order By.
 -
 <img width="1820" height="873" alt="Screenshot (274)" src="https://github.com/user-attachments/assets/47db5bc7-9669-429d-8986-c5f49c28a48a" />
 -
-
+-
+-
 GO
 
 
