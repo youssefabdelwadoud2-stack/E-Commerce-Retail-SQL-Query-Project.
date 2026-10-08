@@ -6,7 +6,7 @@ E-Commerce Retail SQL Query Project For Translate Business Questions Into Raw Da
 
  What is total sales and AVG price to every category 
 
-
+I Used aggregation functions (SUM, AVG) , LEFT JOIN, Group By AND Order By. 
    
      Select 
   
