@@ -156,7 +156,7 @@ Table: Products
 
 Business Question
 
--What are the total sales and the average item price for each product category?
+- What are the total sales and the average item price for each product category?
 
 Objective:
 
@@ -183,13 +183,42 @@ SQL Concepts Used:  aggregation functions`SUM()`, `AVG()`, `LEFT JOIN`, `GROUP B
      Order By  Total_Payment desc ;    
 -
 <img width="1820" height="873" alt="Screenshot (274)" src="https://github.com/user-attachments/assets/47db5bc7-9669-429d-8986-c5f49c28a48a" />
+
+
 -
 -
 -
 GO
 
+Business Question
+
+- Which cities generated more than 300,000 in total revenue?**
+
+Objective:
+
+- Identify the top-performing cities by revenue to support regional sales strategy and market prioritization.
+
+**SQL Concepts Used: `SUM()`, ``, `INNER JOIN`, `GROUP BY`, `HAVING`, `ORDER BY`.
 
 
+    Select
+             c.[customer_city] As City
+            ,cast(sum(p.[payment_value])as int) As Total_Revenue
+
+    From [Retail dataset].[dbo].[customers] As c
+            inner join [Retail dataset].[dbo].[orders] As o
+               on c.[customer_id] = o.[customer_id]
+            inner join [Retail dataset].[dbo].[order_items] As oi
+               on o.[order_id] = oi.[order_id]
+            inner join [Retail dataset].[dbo].[payments] As p
+               on oi.[order_id] = p.[order_id]
+    Group By c.[customer_city]
+    Having   sum(p.[payment_value]) > 300000
+    Order By Total_Revenue desc;
+
+-
+
+<img width="1604" height="887" alt="Screenshot (282)" src="https://github.com/user-attachments/assets/96bfc9c4-e37a-482e-ad93-4eb6026d1563" />
 
 
 
