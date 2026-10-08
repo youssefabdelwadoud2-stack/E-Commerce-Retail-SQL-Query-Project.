@@ -42,7 +42,7 @@ The diagram below shows the data model of the `E-Commerce Retail dataset` And th
 -
 -
 
-Table: customers
+Table: Customers
 - Stores basic information about each customer and where they are located.
 - Use cases: geographic analysis, top cities or states by customers, regional sales.
 
@@ -51,10 +51,26 @@ Table: customers
 - `customer_city`            : City of the customer 
 - `customer_state`           : State of the customer 
 -
-
+-
 
                                                      1- Customers Table  
 <img width="1555" height="897" alt="Screenshot (276)" src="https://github.com/user-attachments/assets/e3320ea0-3186-4f78-9feb-ed13fdd2c45d" />
+-
+-
+-
+Table: Orders
+- Contains the lifecycle of every order, from purchase to delivery.
+- Use cases: delivery performance, late deliveries, order status breakdown, monthly order trends.
+
+- `order_id` (PK) | Unique identifier for each order |
+- `customer_id` (FK) | The customer who placed the order |
+- `order_status` | Current status (e.g., delivered, invoiced) |
+- `order_purchase_timestamp` | When the order was placed |
+- `order_approved_at` | When the payment was approved |
+- `order_delivered_timestamp` | When the order was delivered |
+- `order_estimated_delivery_date` | Estimated delivery date promised to the customer |
+
+
 
 
 
