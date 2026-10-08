@@ -1,43 +1,36 @@
 # Retail-SQL-Query-Project-
+
 E-Commerce Retail SQL Query Project For Translate Business Questions Into Raw Data And Extract It From SQL Server Management.
 
 
 
-/*what is total order to every status*/
+ What is total sales and AVG price to every category 
 
 
- 
-    SELECT 
-           [order_status]
-    ,count([order_status]) total_order_status   
-    FROM [Retail dataset].[dbo].[orders]
-    group by [order_status]
-    order by total_order_status desc;
+Select 
+       P.Product_Category_Name
+      ,cast(avg(oi.price)as int) as AVG_Price 
+      ,cast(sum(py.payment_value)as int) as Total_Payment
+From [Retail dataset].[dbo].[products] as p
+left join [Retail dataset].[dbo].[order_items] as oi
+          on p.product_id = oi.product_id
+left join [Retail dataset].[dbo].[payments] as py 
+          on oi.order_id = py.order_id
+Group By  P.Product_Category_Name 
+Order By  Total_Payment desc ;    
 
-go 
 
 
-/* what is total sales to every seller */
 
-SELECT 
-       distinct [seller_id]
-      ,cast(sum([price]) as int) total_sales
-      
-FROM [Retail dataset].[dbo].[order_items]
-group by [seller_id]
-order by total_sales desc;
 
-Go 
 
-/* the total sales and avg price to every category */
 
-select 
-       cast(avg(oi.price)as int) as avg_price 
-      ,cast(sum(p.payment_value)as int) as total_payment
 
-FROM [Retail dataset].[dbo].[order_items]  oi
-left join [Retail dataset].[dbo].[payments]  p 
-          on oi.order_id = p.order_id;    
+
+
+
+
+
 
 Go
 
@@ -46,7 +39,6 @@ Go
 select
        c.[customer_city] city_name
       ,cast(sum(oi.[price])as int) total_sales
-
 FROM [Retail dataset].[dbo].[order_items] as oi
  
  inner join [Retail dataset].[dbo].[orders] as o
