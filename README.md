@@ -7,19 +7,25 @@ E-Commerce Retail SQL Query Project For Translate Business Questions Into Raw Da
  What is total sales and AVG price to every category 
 
 
-Select 
-       P.Product_Category_Name
-      ,cast(avg(oi.price)as int) as AVG_Price 
-      ,cast(sum(py.payment_value)as int) as Total_Payment
-From [Retail dataset].[dbo].[products] as p
-left join [Retail dataset].[dbo].[order_items] as oi
+   
+     Select 
+  
+           P.Product_Category_Name
+           ,cast(avg(oi.price)as int) as AVG_Price 
+          ,cast(sum(py.payment_value)as int) as Total_Payment
+  
+    From [Retail dataset].[dbo].[products] as p
+          left join [Retail dataset].[dbo].[order_items] as oi
           on p.product_id = oi.product_id
-left join [Retail dataset].[dbo].[payments] as py 
+          left join [Retail dataset].[dbo].[payments] as py 
           on oi.order_id = py.order_id
-Group By  P.Product_Category_Name 
-Order By  Total_Payment desc ;    
+    Group By  P.Product_Category_Name 
+    Order By  Total_Payment desc ;    
+-
+<img width="1820" height="873" alt="Screenshot (274)" src="https://github.com/user-attachments/assets/47db5bc7-9669-429d-8986-c5f49c28a48a" />
+-
 
-
+GO
 
 
 
