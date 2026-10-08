@@ -39,7 +39,7 @@ The diagram below shows the data model of the `E-Commerce Retail dataset` And th
                                                      Database Diagrams (ERD)
 <img width="1601" height="898" alt="Screenshot (275)" src="https://github.com/user-attachments/assets/958c4494-94fc-4dd3-849a-880f7a1b42b6" />
 
-
+-
 -
 -
 
@@ -53,7 +53,7 @@ Table: Customers
 - `customer_city`            : City of the customer 
 - `customer_state`           : State of the customer 
 -
--
+
 
                                                      1- Customers Table  
 <img width="1555" height="897" alt="Screenshot (276)" src="https://github.com/user-attachments/assets/e3320ea0-3186-4f78-9feb-ed13fdd2c45d" />
@@ -74,7 +74,7 @@ Table: Orders
 - `order_delivered_timestamp` : When the order was delivered 
 - `order_estimated_delivery_date` : Estimated delivery date promised to the customer 
 -
--
+
 
  
                                                      2- Orders Table  
@@ -82,12 +82,71 @@ Table: Orders
 
 -
 -
+-
+Table: Order_items
+
+- Holds the individual items inside each order (one row per item).
+= Use cases: revenue analysis, best selling products, seller performance, shipping cost analysis.
+
+- `order_id` (FK) : The order this item belongs to 
+- `order_item_id` : Sequence number of the item within the order 
+- `product_id` (FK) - The product that was purchased 
+- `seller_id` : The seller who sold the product 
+- `price` : Item price 
+- `shipping_charges` : Shipping cost for the item 
+-
+
+                                                     3- Order_items Table
+
+<img width="1618" height="879" alt="Screenshot (279)" src="https://github.com/user-attachments/assets/09e34a7e-4d57-4802-bf61-975a12b84849" />
+
+-
+-
+-
 
 
+Table: Payments
+
+- Records how customers paid for their orders.
+- Use cases: payment method distribution, installment behavior, total revenue per payment type.
+
+- `order_id` (FK) : The order that was paid 
+- `payment_sequential` : Sequence number when multiple payment methods are used 
+- `payment_type` : Payment method (credit_card, wallet, ...) 
+- `payment_installments` : Number of installments chosen 
+ `payment_value` : Amount paid 
+-
 
 
+                                                     4- Payments Table
+<img width="1651" height="895" alt="Screenshot (280)" src="https://github.com/user-attachments/assets/113d62a4-84fe-47e8-a1c1-ec90ed9ed2ba" />
+
+-
+-
+-
 
 
+Table: Products
+
+- Describes the catalog of products sold in the store.
+- Use cases: sales by category, shipping/size analysis, product catalog exploration.
+
+- `product_id` (PK) : Unique identifier for each product 
+- `product_category_name` : Product category (toys, auto, housewares, ...) 
+- `product_weight_g` : Weight in grams 
+- `product_length_cm` : Length in centimeters 
+- `product_height_cm` : Height in centimeters 
+- `product_width_cm` : Width in centimeters 
+
+-
+
+                                                     5- Products Table
+
+<img width="1630" height="892" alt="Screenshot (281)" src="https://github.com/user-attachments/assets/b492b73d-ad93-4ded-b919-d4d919c9d4b2" />
+
+-
+-
+-
 
 
 
