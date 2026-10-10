@@ -180,7 +180,7 @@ E-commerce data.
 
 Business Question
 
-- What are the total sales and the average item price for each product category?
+- What are the total revenue and the average item price for each category?
 
 Objective:
 
