@@ -1066,7 +1066,45 @@ Result
 Go
 -  
 
+Order Delivery Rate
 
+Business Question
+
+What percentage of all orders were successfully delivered?
+
+Objective
+
+- Measure the overall order fulfillment rate by comparing delivered orders to the total number of orders.
+- This helps the business:
+1- Evaluate logistics performance at a glance
+2- Track fulfillment over time,
+3- Spot problems such as high cancellation or undelivered rates.
+
+SQL Concepts Used
+
+`COUNT()`, `CASE WHEN (conditional aggregation)`, `ROUND()`, `NULLIF()`, `CAST()`
+
+Code
+
+     Select
+          count(*) as Total_Orders
+          ,
+          count(
+        case
+            when [order_status] = 'delivered'
+            then 1
+        end ) as Delivered_Orders
+        ,
+        cast ( ROUND(
+           count(
+        case
+            when [order_status] = 'delivered'
+            then 1
+        end
+           ) * 100.0 / nullif(count(*),0),
+           0
+           ) as int) as Delivary_Rate 
+     From [Retail dataset].[dbo].[orders];
 
 
 -
@@ -1074,10 +1112,176 @@ Go
 Result
 -
 
+<img width="1611" height="950" alt="Screenshot 2026-10-12 214225" src="https://github.com/user-attachments/assets/967bd97e-60d1-46ed-8d1a-282baeb4e21b" />
+
 
 -
 -
 -
 
+Go
+-  
+
+Shipping Cost per Gram and per Cubic Centimeter
+
+Business Question
+
+- How much does shipping cost per gram and per cubic centimeter for each product
+- How do weight and volume relate to the shipping charge?
+
+Objective
+
+- Measure shipping efficiency by comparing each item’s shipping charge to its weight and its physical volume.
+- This helps the business:
+1- Understand whether shipping cost is driven more by weight or by package size.
+2- Detect products with unusually expensive shipping.
+3-refine shipping fee policies for heavy or bulky items.
+
+SQL Concepts Used
+
+`INNER JOIN`, `Arithmetic Expressions (volume = height x length x width)`, `NULLIF()`, `CAST()`
+
+Code
+
+
+      Select
+          p.[product_id]
+         ,oi.[shipping_charges]
+         ,p.[product_weight_g]
+         ,[shipping_charges]/NULLIF(product_weight_g,0) 
+              AS shipping_price_per_gram
+   
+         ,p.[product_height_cm] * p.[product_length_cm]
+         * p.[product_width_cm]  As Volum_CM
+         
+         ,[shipping_charges]/NULLIF(
+         p.[product_height_cm] * p.[product_length_cm]
+         * p.[product_width_cm] ,0)
+         AS shipping_price_per_CM3
+      From [Retail dataset].[dbo].[order_items] AS oi
+         Inner Join [Retail dataset].[dbo].[products] AS p
+            ON oi.product_id = p.product_id;
+
+-
+
+Result
+-
+
+<img width="1610" height="956" alt="Screenshot 2026-10-12 220049" src="https://github.com/user-attachments/assets/3963af6c-94be-47ef-86b0-0f013d268074" />
+
+
+-
+-
+-
+
+Go
+-  
+
+Seller Performance Ranking by Revenue
+
+Business Question
+
+- Which sellers generate the most revenue
+- How do they compare in order volume, average order value, and average item price?
+
+Objective
+
+- Rank every seller by total revenue to identify the top performing sellers and understand what drives their results: number of orders, average order value, or item price level.
+- This helps the business:
+1- Reward and support top sellers
+2- Spot underperforming ones
+3- Decide where to focus seller development and partnerships.
+
+SQL Concepts Used
+
+`Subquery`, `SUM()`, `COUNT(DISTINCT)`, `AVG()`, `NULLIF()`, `Window Function (DENSE_RANK() OVER)`, `CAST()`, `GROUP BY`, `ORDER BY`
+
+Code
+
+
+    Select
+         Seller_id,
+         Total_revenue,
+         Total_orders,
+         Cast(Total_revenue / NULLIF(Total_orders, 0) AS DECIMAL(10,2)) AS Avg_order_value,
+         Avg_item_price,
+         Dense_Rank() OVER (ORDER BY Total_revenue DESC)     AS Seller_rank
+    From
+      (
+      Select
+           oi.seller_id,
+           COUNT(DISTINCT oi.order_id)                    AS Total_orders,
+           CAST(SUM(oi.price) AS DECIMAL(12,2))           AS Total_revenue,
+           CAST(AVG(oi.price) AS DECIMAL(10,2))           AS Avg_item_price
+      From [Retail dataset].[dbo].[order_items] AS oi
+       Group By oi.seller_id
+       ) As seller_sales
+    Order By Seller_rank ASC;
+
+-
+
+Result
+-
+
+<img width="1612" height="948" alt="Screenshot 2026-10-12 222912" src="https://github.com/user-attachments/assets/a135cba5-cf71-4aa2-ae59-d291f0b7a2fa" />
+
+
+-
+-
+-
+
+Go
+-  
+
+Orders with Price Above Twice the Product Average
+
+Business Question
+
+Which order items were sold at a price more than double the average price of the same product?
+
+Objective
+
+- Detect unusually high-priced sales by comparing each item’s price with the average price of its product.
+- This helps the business:
+1- Spot pricing anomalies.
+2- Possible data entry errors.
+3- Premium or special-edition sales.
+4- Sellers who charge far above the normal price for the same product.
+
+SQL Concepts Used
+
+`Subquery`, `Window Function (AVG() OVER with PARTITION BY)`,`WHERE`,`ORDER BY`
+
+Code
+
+
+Select 
+       [Order_id]
+      ,[Product_id]
+      ,[Price]
+      ,AVG_Product_Price
+From 
+    (   
+    Select
+       [Order_id]
+      ,[Product_id]
+      ,[Price]
+      ,avg(Price) over(
+           partition by ([Product_id])
+             ) as AVG_Product_Price
+    From [Retail dataset].[dbo].[order_items]
+    )  as product_price
+
+Where Price > AVG_Product_Price * 2
+Order by Price desc;
+
+
+Result
+-
+
+<img width="1612" height="949" alt="Screenshot 2026-10-12 223456" src="https://github.com/user-attachments/assets/b866301e-9de4-4355-abbd-55273095ccf4" />
+
+-
+-  
 Go
 -  
