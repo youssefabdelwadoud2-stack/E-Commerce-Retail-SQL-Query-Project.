@@ -340,7 +340,56 @@ Result
 Go
 
 
+Shipping Cost: Light vs. Heavy Products
 
+Business Question
+
+How does the average shipping charge differ between light products (under 1 Kg) and heavy products (over 5 Kg), and how many items fall into each group?
+
+Objective
+Understand how product weight affects shipping cost, to support decisions
+on shipping fee policies, free-shipping thresholds, and pricing of heavy
+products. It also shows how much of the sales volume comes from each
+weight group.
+
+SQL Concepts Used
+`INNER JOIN`, `CASE WHEN`, `COUNT()`, `AVG()`, `WHERE`, `GROUP BY`,
+`ORDER BY`
+
+Code
+​
+
+
+    Select
+         count(*)                     AS Total_items
+         ,avg(oi.[shipping_charges])  As AVG_shipping_Cost
+         ,case
+          when p.[product_weight_g] < 1000 then 'Light_Weight' 
+          when p.[product_weight_g] > 5000 then 'Heavy_Weight'
+         end As Product_Weight
+       
+    From [Retail dataset].[dbo].[order_items] as oi
+       inner join [Retail dataset].[dbo].[products] as p
+          on oi.product_id = p.product_id
+
+    Where p.[product_weight_g] < 1000  
+       or p.[product_weight_g] > 5000
+    Group by  case
+          when p.[product_weight_g] < 1000 then 'Light_Weight' 
+          when p.[product_weight_g] > 5000 then 'Heavy_Weight'
+          end 
+    Order by AVG_shipping_Cost desc;
+
+
+
+Result
+
+-
+<img width="1603" height="950" alt="image" src="https://github.com/user-attachments/assets/376a8095-8271-466b-9122-edd8d22dc493" />
+
+-
+-
+-
 
 
 
