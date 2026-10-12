@@ -403,13 +403,14 @@ Business Question
 Objective
 
 - Segment customers by purchasing behavior to understand loyalty and revenue contribution.
-- This helps the business
+- This helps the business to:
   
 1- design retention campaigns for repeat customers.
 2- Convert one time buyers into returning ones.
 3- Measure how much revenue depends on loyal customers.
 
 SQL Concepts Used
+
 `Subquery (Derived Table)`, `INNER JOIN`, `COUNT(DISTINCT)`, `SUM()`, `CASE WHEN`, `GROUP BY`, `ORDER BY`
 
 Code
