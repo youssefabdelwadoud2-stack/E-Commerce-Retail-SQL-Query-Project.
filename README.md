@@ -511,13 +511,119 @@ Result
 -
 
 Go
+-
+
+Customer Segmentation by Spending Value
+
+Business Question
+
+- How much has each customer spent in total?
+- Which customers fall into the low, medium, or high value segments?
+
+Objective
+
+- Group customers into value tiers based on their total spending (under 500 = Low Value, 500 to under 1,500 = Medium Value, 1,500 and above = High Value). 
+- This helps the business
+  
+1- identify its most valuable customers. 2- design targeted offers and loyalty programs for the high value segment 3- build strategies to move low-value customers up to higher tiers.
+
+SQL Concepts Used
+
+`Subquery (Derived Table)`, `INNER JOIN`, `SUM()`, `CASE WHEN`, `GROUP BY`, `ORDER BY`
+
+Code
+
+
+     Select 
+        [Customer_id]
+       ,Customer_Value
+       ,case
+         when Customer_Value < 500 then 'Low_Value'
+         when Customer_Value < 1500 then 'Medium_Value'
+         else 'High_Value'
+       end As Customer_Segment
+    From
+      ( 
+        Select 
+            o.[customer_id]
+            ,sum(p.[payment_value])         As Customer_Value
+        from [Retail dataset].[dbo].[orders] As o
+          inner join [Retail dataset].[dbo].[payments] As p
+           on o.order_id = p.order_id
+            group by [customer_id]
+      ) as customer_spending
+
+    Order by Customer_Value desc;
+
+-
+
+Result
+-
+<img width="1608" height="960" alt="Screenshot 2026-10-12 190029" src="https://github.com/user-attachments/assets/cb8d9e68-e196-48c5-9fbb-edac16e457a5" />
+
+
+-
+-
+-
+
+Go
+-
+
+Monthly Sales Trend with Running Total
+
+Business Question
+
+- What are the total sales for each month, and how do sales accumulate over time (running total)?
+
+Objective
+
+- Track monthly sales performance and the cumulative growth of revenue over time. 
+- This helps the business spot seasonality, identify strong and weak months, and measure overall growth across the period.
+
+SQL Concepts Used
+
+`Subquery (Derived Table)`, `INNER JOIN (3 tables)`, `SUM()`, `Window Function` , `YEAR()`, `MONTH()`, `CAST()`, `GROUP BY`, `ORDER BY`
+
+Code
+
+     Select 
+          Years
+          ,Months
+          ,Total_Sales
+          ,cast (sum(Total_Sales) over(
+                order by Years, Months
+                     ) As int ) As Total_Running  
+     From
+       (
+        Select
+           YEAR(o.[order_approved_at])            AS  Years
+           ,MONTH(o.[order_approved_at])           AS  Months
+           ,cast(sum(p.[Payment_value]) as int)    As Total_Sales
+
+         From [Retail dataset].[dbo].[orders]            As o
+            inner join [Retail dataset].[dbo].[order_items] As oi
+               on o.order_id = oi.order_id
+            inner join [Retail dataset].[dbo].[payments]    As p
+               on o.order_id = p.order_id
+
+     Group by   YEAR(o.[order_approved_at])
+            ,MONTH(o.[order_approved_at])
+        ) As Monthly_sales
+     Order by Total_Running DESC;
+
+
+-
+
+Result
+-
+<img width="1610" height="953" alt="Screenshot 2026-10-12 190745" src="https://github.com/user-attachments/assets/b313aca8-7cc3-4dd6-bd7e-c5a4088420f2" />
 
 
 
 
+-
+-
+-
 
-
-
-
-
-   
+Go
+-   
