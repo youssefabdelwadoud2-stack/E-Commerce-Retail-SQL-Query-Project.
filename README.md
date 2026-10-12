@@ -249,50 +249,61 @@ Objective
 - This supports decisions on inventory planning, marketing focus, and pricing and shipping strategy.
 
 SQL Concepts Used
-
-- `SUM()`, `AVG()`,`COUNT()`, `COUNT(DISTINCT)`, `CAST()`
-- `INNER JOIN` (4 tables), `Subquery (Derived Table)`, , `RANK()`, `OVER ()`,
-- `GROUP BY`, `ORDER BY`
+`CTE (Common Table Expressions)`, `Subquery (Derived Table)`, `INNER JOIN`, `Window Functions (SUM() OVER with PARTITION BY`, `DENSE_RANK() OVER with PARTITION BY)`, `SUM()`, `COUNT(DISTINCT)`, `AVG()`, `NULLIF()`, `CAST()`, `GROUP BY`, `ORDER BY`
 
 Code
 
 
-    Select  
-         pr.[product_category_name]           As Category
-         ,rank() over(
-                order by cast(sum(p.order_payment) as int) desc
-                     ) as category_rank
-         ,(count(distinct pr.[product_id]))    As Total_Product
-         ,cast(sum(p.order_payment) as int)    As Total_Revenue
-         ,count(distinct o.[order_id])         As Total_Orders
-         ,count(oi.[order_item_id])                 As Total_Item
-         ,cast(avg (oi.price)as int)           As AVG_Price
-         ,cast (sum (p.order_payment) 
-               / count( distinct o.[order_id]) as int)  As AVO 
-         ,cast(avg(oi.[shipping_charges])as int)       AS AVG_Shpping_Cost
-     
-    FROM [Retail dataset].[dbo].[orders]  As o
-       inner join [Retail dataset].[dbo].[order_items] As oi
-          on o.[order_id] = oi.[order_id] 
-       inner join [Retail dataset].[dbo].[products]    As pr
-          on oi.[product_id] = pr.[product_id] 
-       inner join (
-           Select [order_id], sum([payment_value]) AS order_payment
-           From [Retail dataset].[dbo].[payments]
-           Group by [order_id]
-             ) AS p
-              on  oi.[order_id] = p.[order_id] 
-    Group by pr.[product_category_name]
-    Order by category_rank Asc;
+    
+
+     WITH item_payment AS
+        (
+      Select
+              oi.[order_id]
+             ,oi.[order_item_id]
+             ,oi.[product_id]
+             ,oi.[price]
+             ,oi.[shipping_charges]
+             ,pay.[order_payment] * (oi.[price] + oi.[shipping_charges])
+                  / NULLIF(SUM(oi.[price] + oi.[shipping_charges])
+                        OVER (PARTITION BY oi.[order_id]), 0)   As payment_value
+      From [Retail dataset].[dbo].[order_items] As oi
+         inner join (
+               Select [order_id], sum([payment_value]) As order_payment
+               From [Retail dataset].[dbo].[payments]
+               Group by [order_id]
+                     ) As pay
+               on oi.[order_id] = pay.[order_id]
+         )
+      Select 
+              p.[product_id]
+              ,pr.[product_category_name]
+              ,Dense_Rank() over (
+              partition by pr.[product_category_name]
+              order by sum(p.[payment_value]) desc
+                 ) As Proudct_Rank
+              ,count(distinct p.[order_id])             As Total_Orders
+              ,count(p.[order_item_id])                 As Total_Item
+              ,cast(avg(p.[price])         as int)      As Avg_Price 
+              ,cast(sum(p.[payment_value]) as int)      As Total_Revenue
+              ,cast(avg(p.[shipping_charges]) as int)   As Avg_Shipping
+
+      From item_payment As p
+           inner join [Retail dataset].[dbo].[products] As pr
+              on p.[product_id] = pr.[product_id]
+
+      Group by p.[product_id], pr.[product_category_name]
+      Order by pr.[product_category_name], Proudct_Rank;
+
 
 Result
 
 -
-<img width="1564" height="917" alt="Screenshot 2026-10-12 124440" src="https://github.com/user-attachments/assets/6a11f630-b642-4da3-8606-6232092211ac" />
-
+<img width="1610" height="950" alt="Screenshot 2026-10-12 231304" src="https://github.com/user-attachments/assets/c10d92dd-4d14-4496-a910-8a16adecb30e" />
 
 -
-<img width="1608" height="949" alt="Screenshot 2026-10-12 124551" src="https://github.com/user-attachments/assets/4d9eba88-63d3-4947-ae9f-0a5f4b645082" />
+
+<img width="1606" height="940" alt="Screenshot 2026-10-12 231401" src="https://github.com/user-attachments/assets/7cd6170f-19ca-49aa-8eb0-133d2cb7ca4e" />
 
 -
 -
