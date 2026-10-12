@@ -174,46 +174,6 @@ E-commerce data.
 -
 
 
-
-
-
-
-Business Question
-
-- What are the total revenue and the average item price for each category?
-
-Objective:
-
-- Identify which product categories generate the highest revenue and compare their average price points.
-
-SQL Concepts Used:  aggregation functions`SUM()`, `AVG()`, `LEFT JOIN`, `GROUP BY`, `ORDER BY`. 
-
--
-
-
-   
-     Select 
-  
-           P.Product_Category_Name
-           ,cast(avg(oi.price)as int) as AVG_Price 
-          ,cast(sum(py.payment_value)as int) as Total_Payment
-  
-     From [Retail dataset].[dbo].[products] as p
-          left join [Retail dataset].[dbo].[order_items] as oi
-          on p.product_id = oi.product_id
-          left join [Retail dataset].[dbo].[payments] as py 
-          on oi.order_id = py.order_id
-     Group By  P.Product_Category_Name 
-     Order By  Total_Payment desc ;    
--
-<img width="1820" height="873" alt="Screenshot (274)" src="https://github.com/user-attachments/assets/47db5bc7-9669-429d-8986-c5f49c28a48a" />
-
-
--
--
--
-GO
-
 Top Performing Products within Each Category
 
 Business Question
@@ -232,9 +192,37 @@ SQL Concepts Used
 - `SUM()`, `AVG()`, `COUNT()`, `COUNT(DISTINCT)`, `CAST()`
 - `INNER JOIN` (3 tables), `DENSE_RANK()`, `OVER (PARTITION BY ... ORDER BY ...)`
 - `GROUP BY`, `ORDER BY`
--
-<img width="1666" height="895" alt="Screenshot (285)" src="https://github.com/user-attachments/assets/fa3960d9-871b-4c1b-bba4-d14d12bddc67" />
 
+-
+Code 
+
+     Select 
+          oi.[product_id]
+          ,pr.[product_category_name]
+          ,Dense_Rank() over (
+                  partition by pr.[product_category_name]
+                  order by sum (p.[payment_value]) desc
+                  ) As Proudct_Rank
+          ,count(distinct oi.[order_id])             As Total_Orders
+          ,count(oi.[order_item_id])                 As Total_Item
+          ,cast(avg(oi.[price])         as int)      As Avg_Price 
+          ,cast(sum (p.[payment_value]) as int)      As Total_Revenue
+           ,cast(avg([shipping_charges]) as int)      As Avg_Shipping
+      
+     From [Retail dataset].[dbo].[payments]                As p 
+       inner join  [Retail dataset].[dbo].[order_items]    As oi
+          on p.[order_id] = oi.[order_id]
+     inner join [Retail dataset].[dbo].[products]        As pr
+          on oi.[product_id] = pr.[product_id]
+
+     Group by oi.[product_id], pr.[product_category_name]
+      Order by pr.[product_category_name],Proudct_Rank ;
+
+Result
+
+-
+
+<img width="1666" height="895" alt="Screenshot (285)" src="https://github.com/user-attachments/assets/fa3960d9-871b-4c1b-bba4-d14d12bddc67" />
 
 -
 
@@ -244,55 +232,122 @@ SQL Concepts Used
 -
 -
 
+Go 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+Product Category Performance Ranking
 
 Business Question
 
-- Which cities generated more than 300,000 in total revenue?**
+- Which product categories generate the most revenue, and how do they compare in product variety, order volume, items sold, average price, average order value, and shipping cost?
 
-Objective:
+Objective
 
-- Identify the top-performing cities by revenue to support regional sales strategy and market prioritization.
+- Rank all product categories by total revenue to identify the best performing ones and
+- Understand what drives their performance (number of products, order volume, price level, or basket size).
+- This supports decisions on inventory planning, marketing focus, and pricing and shipping strategy.
 
-**SQL Concepts Used: `SUM()`, ``, `INNER JOIN`, `GROUP BY`, `HAVING`, `ORDER BY`.
+SQL Concepts Used
+
+- `SUM()`, `AVG()`,`COUNT()`, `COUNT(DISTINCT)`, `CAST()`
+- `INNER JOIN` (4 tables), `Subquery (Derived Table)`, , `RANK()`, `OVER ()`,
+- `GROUP BY`, `ORDER BY`
+
+Code
 
 
-    Select
-             c.[customer_city] As City
-            ,cast(sum(p.[payment_value])as int) As Total_Revenue
+    Select  
+         pr.[product_category_name]           As Category
+         ,rank() over(
+                order by cast(sum(p.order_payment) as int) desc
+                     ) as category_rank
+         ,(count(distinct pr.[product_id]))    As Total_Product
+         ,cast(sum(p.order_payment) as int)    As Total_Revenue
+         ,count(distinct o.[order_id])         As Total_Orders
+         ,count(oi.[order_item_id])                 As Total_Item
+         ,cast(avg (oi.price)as int)           As AVG_Price
+         ,cast (sum (p.order_payment) 
+               / count( distinct o.[order_id]) as int)  As AVO 
+         ,cast(avg(oi.[shipping_charges])as int)       AS AVG_Shpping_Cost
+     
+    FROM [Retail dataset].[dbo].[orders]  As o
+       inner join [Retail dataset].[dbo].[order_items] As oi
+          on o.[order_id] = oi.[order_id] 
+       inner join [Retail dataset].[dbo].[products]    As pr
+          on oi.[product_id] = pr.[product_id] 
+       inner join (
+           Select [order_id], sum([payment_value]) AS order_payment
+           From [Retail dataset].[dbo].[payments]
+           Group by [order_id]
+             ) AS p
+              on  oi.[order_id] = p.[order_id] 
+    Group by pr.[product_category_name]
+    Order by category_rank Asc;
 
-    From [Retail dataset].[dbo].[customers] As c
-            inner join [Retail dataset].[dbo].[orders] As o
-               on c.[customer_id] = o.[customer_id]
-            inner join [Retail dataset].[dbo].[order_items] As oi
-               on o.[order_id] = oi.[order_id]
-            inner join [Retail dataset].[dbo].[payments] As p
-               on oi.[order_id] = p.[order_id]
-    Group By c.[customer_city]
-    Having   sum(p.[payment_value]) > 300000
-    Order By Total_Revenue desc;
+Result
 
 -
+<img width="1564" height="917" alt="Screenshot 2026-10-12 124440" src="https://github.com/user-attachments/assets/6a11f630-b642-4da3-8606-6232092211ac" />
 
-<img width="1604" height="887" alt="Screenshot (282)" src="https://github.com/user-attachments/assets/96bfc9c4-e37a-482e-ad93-4eb6026d1563" />
+
+-
+<img width="1608" height="949" alt="Screenshot 2026-10-12 124551" src="https://github.com/user-attachments/assets/4d9eba88-63d3-4947-ae9f-0a5f4b645082" />
+
+-
+-
+-
+Go
+
+Best Selling Products (More Than 50 Order Lines)
+
+Business Question
+
+- Which products are the most in demand, with more than 50 sold order lines
+- How do their total orders compare to total items sold?
+
+Objective
+
+- Identify the high volume products that drive the most sales activity so the business can prioritize them in inventory planning, promotions, and supply.
+management, and avoid stock-outs on the products customers buy most.
+
+SQL Concepts Used
+
+`INNER JOIN`, `COUNT()`, `COUNT(DISTINCT)`, `GROUP BY`, `HAVING`, `ORDER BY`
+
+Code
+​         
+    
+    Select 
+        p.[Product_id]
+        ,count (distinct oi.[order_id])            As Total_Orderd
+        ,count(oi.[order_item_id])                 As Total_Item
+    From [Retail dataset].[dbo].[products] As p
+       inner join [Retail dataset].[dbo].[order_items] As oi
+         on p.[product_id] = oi.[product_id]
+    Group by p.[product_id]
+    Having count(oi.[order_id]) > 50
+    Order by Total_Item Desc;
+
+Result
+-
+<img width="1607" height="952" alt="Screenshot 2026-10-12 125823" src="https://github.com/user-attachments/assets/174ebd96-3392-4e7d-8d0d-c0dcf2f64b4d" />
+
+
+-
+-
+-
+Go
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -301,10 +356,3 @@ Objective:
 
 
    
-
-
-
-Select 
-      
-
-[Retail Database.sql](https://github.com/user-attachments/files/32296399/Retail.Database.sql)
