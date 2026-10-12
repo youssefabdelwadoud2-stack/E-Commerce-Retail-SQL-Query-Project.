@@ -214,6 +214,56 @@ SQL Concepts Used:  aggregation functions`SUM()`, `AVG()`, `LEFT JOIN`, `GROUP B
 -
 GO
 
+Top Performing Products within Each Category
+
+Business Question
+
+- Which products generate the most revenue within each product category
+- How do they compare in order volume, item count,
+- Average price and average shipping cost?
+
+Objective
+
+- Rank every product inside its own category by total revenue to identify the best sellers in each category.
+- This helps the business decide which products to prioritize in inventory, promotion, and pricing, and shows how shipping
+cost relates to each product's performance.
+
+SQL Concepts Used
+- `SUM()`, `AVG()`, `COUNT()`, `COUNT(DISTINCT)`, `CAST()`
+- `INNER JOIN` (3 tables), `DENSE_RANK()`, `OVER (PARTITION BY ... ORDER BY ...)`
+- `GROUP BY`, `ORDER BY`
+-
+<img width="1666" height="895" alt="Screenshot (285)" src="https://github.com/user-attachments/assets/fa3960d9-871b-4c1b-bba4-d14d12bddc67" />
+
+
+-
+
+<img width="1605" height="940" alt="Screenshot 2026-10-12 122147" src="https://github.com/user-attachments/assets/f2e85117-f9d1-4f22-bdab-5ef53b89fa5f" />
+
+-
+-
+-
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 Business Question
 
 - Which cities generated more than 300,000 in total revenue?**
