@@ -37,7 +37,7 @@ The diagram below shows the data model of the `E-Commerce Retail dataset` And th
 -
 
                                                      Database Diagrams (ERD)
-<img width="1601" height="898" alt="Screenshot (275)" src="https://github.com/user-attachments/assets/958c4494-94fc-4dd3-849a-880f7a1b42b6" />
+Take screenshot
 
 -
 -
