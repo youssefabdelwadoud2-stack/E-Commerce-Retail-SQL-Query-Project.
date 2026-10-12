@@ -392,7 +392,70 @@ Result
 -
 
 Go
+-
 
+Customer Segmentation: Repeat vs. One Time Customers
+
+Business Question
+
+- How many orders has each customer placed?
+- How much revenue does each customer generate?
+- Which customers are repeat buyers compared to one time buyers?
+
+Objective
+
+- Segment customers by purchasing behavior to understand loyalty and revenue contribution. 
+- This helps the business design retention campaigns for repeat customers, convert one time buyers into returning ones, and measure how much revenue depends on loyal customers.
+
+SQL Concepts Used:
+
+`Subquery (Derived Table)`, `INNER JOIN`, `COUNT(DISTINCT)`, `SUM()`, `CASE WHEN`, `GROUP BY`, `ORDER BY`
+
+Code
+
+         
+    Select 
+      [customer_id]
+     ,Total_orders
+     ,Total_Revenue
+    
+    ,case 
+      when Total_orders > 1  then 'Repeat Customer'
+      else 'One Time Customer'
+     end as customer_Type
+    From 
+     (
+      Select
+           o.[customer_id] 
+          ,count(distinct o.[order_id])    As     Total_Orders
+          ,sum(p.[payment_value])          As     Total_Revenue
+      From [Retail dataset].[dbo].[orders] As o
+        inner join [Retail dataset].[dbo].[payments] As p
+         on o.order_id = p.order_id
+      Group by o.[customer_id]
+       )    As customer_orders
+    Order by Total_orders Desc;
+
+
+
+
+-
+
+Result
+-
+<img width="1613" height="887" alt="Screenshot 2026-10-12 184958" src="https://github.com/user-attachments/assets/c2f2521b-7ac0-4b14-9871-6ec544374a3a" />
+
+-
+<img width="1602" height="946" alt="Screenshot 2026-10-12 185120" src="https://github.com/user-attachments/assets/779b819f-2789-4ed5-b2b5-1d2f746a4d9c" />
+
+-
+-
+-
+
+
+
+
+Go
 Customer Segmentation: Repeat vs. One-Time Customers
 
 Business Question
