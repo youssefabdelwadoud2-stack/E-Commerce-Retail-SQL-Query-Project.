@@ -729,3 +729,355 @@ Result
 
 Go
 -   
+
+
+Monthly Revenue, Orders, and Average Order Value Report
+
+Business Question
+
+What are the total revenue, number of orders, and average order value (AOV) for each month?
+
+Objective
+
+- Build a monthly performance report that tracks revenue, order volume, and the average amount spent per order.
+- This helps the business spot seasonality, compare strong and weak months, and see whether revenue growth comes from more orders or from higher spending per order.
+
+SQL Concepts Used
+
+`INNER JOIN`, `YEAR()`, `MONTH()`, `SUM()`, `COUNT(DISTINCT)`,`ROUND()`, `NULLIF()`, `CAST()`, `GROUP BY`,`ORDER BY`
+
+
+Code
+
+     Select
+          year([order_estimated_delivery_date])     As Years 
+         ,month([order_estimated_delivery_date])    As Months
+         ,sum(p.[payment_value])                    As Revenue
+         ,count(distinct (o.[order_id]))            As Total_Orders
+         ,Round(
+            sum(p.[payment_value]) / nullif(count(distinct o.[order_id]),0),2
+               )  As AVO
+
+     From [Retail dataset].[dbo].[orders]              AS o
+        inner join [Retail dataset].[dbo].[payments]   AS p
+            on o.order_id = p.order_id
+     Group by 
+          month([order_estimated_delivery_date]) 
+         ,year([order_estimated_delivery_date])     
+     Order by 
+         Years  Asc
+        ,Months ASC;
+
+
+-
+
+Result
+-
+
+<img width="1600" height="944" alt="Screenshot 2026-10-12 193021" src="https://github.com/user-attachments/assets/e6e31ee7-af36-4ad2-8c59-0bd0e479da29" />
+
+
+
+
+
+-
+-
+-
+
+Go
+- 
+
+
+Order Distribution by Hour of the Day
+
+Business Question
+
+At which hours of the day do customers place the most orders?
+
+Objective
+
+- Understand the daily ordering pattern by counting orders for each hour of the day.
+- This helps the business
+1- Pick the best times for promotions and email campaigns
+2- Plan customer support staffing
+3- Make sure systems and inventory are ready during peak hours.
+
+SQL Concepts Used
+
+`DATEPART()`, `COUNT()`, `GROUP BY`, `ORDER BY`
+
+Code
+
+     Select 
+          DATEPART
+          (hour,[order_purchase_timestamp])  As Order_Hours
+         ,count(*)                           As Total_Orders
+     From  [Retail dataset].[dbo].[orders]
+     Group By  DATEPART
+            (hour,[order_purchase_timestamp])
+     Order By Order_Hours asc;
+
+-
+
+Result
+-
+
+<img width="1596" height="950" alt="Screenshot 2026-10-12 193521" src="https://github.com/user-attachments/assets/7fa44a82-a6c6-424e-9e56-2a5406ae52c1" />
+
+
+-
+-
+-
+
+Go
+-  
+
+Cities Exceeding 300,000 in Revenue, with Orders and Sellers
+
+Business Question
+
+- Which cities generated more than 300,000 in total revenue?
+- How many orders and distinct sellers contributed to that revenue?
+
+Objective
+
+- Identify the top-performing cities by revenue and understand what supports their performance: order volume and the number of sellers serving them.
+- This helps the business:
+1- Prioritize regional marketing.
+2- Plan logistics and warehousing.
+3- Decide where to recruit more sellers.
+
+SQL Concepts Used
+
+`CTE (Common Table Expressions)`, `INNER JOIN`, `SUM()`, `COUNT(DISTINCT)`, `CAST()`, `GROUP BY`, `HAVING`, `ORDER BY`
+
+Code
+
+ 
+     WITH
+     order_payment AS
+       (
+         Select order_id, SUM(payment_value) AS order_value
+         From [Retail dataset].[dbo].[payments]
+         Group By order_id
+        ),
+     order_sellers AS
+        (
+         Select DISTINCT order_id, seller_id
+         From [Retail dataset].[dbo].[order_items]
+        )
+     Select
+         c.customer_city AS City,
+         Cast(Sum(op.order_value) AS DECIMAL(12,2)) AS Total_Revenue,
+         Count(Distinct o.order_id)                 AS Total_Orders,
+         Count(Distinct os.seller_id)               AS Total_Sellers
+     From [Retail dataset].[dbo].[customers]       AS c
+       Inner Join [Retail dataset].[dbo].[orders] AS o
+         ON c.customer_id = o.customer_id
+     Inner Join order_payment AS op
+         ON o.order_id = op.order_id
+     Inner Join order_sellers AS os
+         ON o.order_id = os.order_id
+     Group By c.customer_city
+     Having sum(op.order_value) > 300000
+     Order By Total_Revenue Desc;
+-
+
+Result
+-
+
+-
+<img width="1603" height="939" alt="Screenshot 2026-10-12 201741" src="https://github.com/user-attachments/assets/8b72edd5-1fbb-46e7-b762-9ac484a345ee" />
+
+-
+
+<img width="1603" height="939" alt="Screenshot 2026-10-12 201741" src="https://github.com/user-attachments/assets/dfe42265-22ba-4c98-995e-74e38e6fa118" />
+
+-
+-
+-
+
+Go
+
+
+
+Top 10 States by Revenue and Customers
+
+Business Question
+
+Which are the top 10 states by total revenue, and how many customers does each state have?
+
+Objective
+
+- Identify the highest revenue states and compare them with their customer counts.
+- This helps the business:
+1-Focus regional marketing, plan logistics and warehouse locations.
+1-See whether a state’s revenue comes from a large customer base or from higher spending per customer.
+
+SQL Concepts Used
+
+`TOP`, `INNER JOIN` , `SUM()`, `COUNT(DISTINCT)`, `CAST()`, `GROUP BY`, `ORDER BY`
+
+Code
+
+
+
+    Select Top 10
+         c.[Customer_State]
+        ,cast(sum(p.[payment_value]) as int)     As Revenue 
+        ,count( c.[customer_id])                 As Total_Customer
+    From [Retail dataset].[dbo].[customers]         As c
+      inner join [Retail dataset].[dbo].[orders]   As o
+         on c.[customer_id] = o.[customer_id]
+      inner join [Retail dataset].[dbo].[payments] As p
+         on o.[order_id] = p.[order_id]
+
+    Group by [customer_state] 
+    Order by Revenue desc
+         ,Total_Customer desc;
+
+
+-
+
+Result
+-
+
+<img width="1608" height="957" alt="Screenshot 2026-10-12 202604" src="https://github.com/user-attachments/assets/a5b221d6-10d1-43e3-bf23-badf8f03d20e" />
+
+
+-
+-
+-
+
+Go
+-  
+
+
+Delivery Performance: Early, On Time, Late, and Not Delivered
+
+Business Question
+
+- What percentage of orders were delivered early, on time, or late compared to the estimated delivery date
+- How many orders were never delivered?
+
+Objective
+
+- Measure delivery performance by counting orders in each delivery status and showing each status as a share of all orders.
+- This helps the business:
+1- evaluate logistics reliability
+2- Find how many orders are late or undelivered
+3- Improve customer satisfaction and delivery promises.
+
+SQL Concepts Used
+
+`Subquery` , `CASE WHEN`, `COUNT()`, `Window Function OVER)`, `CAST()`, `GROUP BY`, `ORDER BY`
+
+Code
+
+
+      Select 
+              Delivery_Status
+             ,Count(*)                                         AS Total_Orders
+             ,Cast(Cast(Count(*) * 100.0 / Sum(Count(*)) 
+              Over () As Decimal(5,2)) AS Varchar(10)) + '%'    As Percentage
+      From
+        ( 
+          select [order_id],
+        case 
+           when [order_delivered_timestamp] < 
+                [order_estimated_delivery_date] then 'Early'
+           when [order_delivered_timestamp] = 
+                [order_estimated_delivery_date] then 'on_time'
+           when [order_delivered_timestamp] > 
+                [order_estimated_delivery_date] then 'late'
+        else 'Not_Delivered'
+        end as Delivery_Status
+        FROM [Retail dataset].[dbo].[orders]
+           ) as delivary_date
+      Group By Delivery_Status
+      Order By Total_Orders;
+     
+
+-
+
+Result
+-
+
+<img width="1607" height="943" alt="Screenshot 2026-10-12 203511" src="https://github.com/user-attachments/assets/9aed9928-f074-449b-b8ac-c942347fd26f" />
+
+
+-
+-
+-
+
+Go
+-  
+
+Shipping Cost Analysis by State
+
+Business Question
+
+What are the highest, lowest, and average shipping charges for each customer state?
+
+Objective
+
+- Compare shipping costs across states to find which regions are the most and least expensive to ship to.
+- This helps the business:
+1- Review shipping fee policies.
+2- Negotiate with carriers for costly regions.
+3- decide where free-shipping offers or regional warehouses would reduce costs.
+
+SQL Concepts Used
+
+`INNER JOIN`, `MAX()`, `MIN()`, `AVG()`, `CAST()`, `GROUP BY`, `ORDER BY`
+
+Code
+
+
+     Select 
+           c.[Customer_State]
+           ,max(oi.[shipping_charges])                  As   Max_Shpping_Cost
+           ,min(oi.[shipping_charges])                  As   Low_Shpping_Cost
+           ,cast(avg(oi.[shipping_charges]) as int)     As   AVG_Shpping_Cost
+
+     From [Retail dataset].[dbo].[customers] as c 
+         inner join [Retail dataset].[dbo].[orders] as o
+            on c.customer_id = o.customer_id
+         inner join [Retail dataset].[dbo].[order_items] as oi
+            on o.order_id = oi.order_id
+
+     Group by c.[customer_state]
+     Order by Max_Shpping_Cost
+             ,Low_Shpping_Cost
+             ,AVG_Shpping_Cost;
+
+-
+
+Result
+-
+
+<img width="1607" height="951" alt="Screenshot 2026-10-12 210200" src="https://github.com/user-attachments/assets/01690446-88bb-4054-8236-e186afc15374" />
+
+
+-
+-
+-
+
+Go
+-  
+
+
+
+
+-
+
+Result
+-
+
+
+-
+-
+-
+
+Go
+-  
