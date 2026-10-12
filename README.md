@@ -578,7 +578,8 @@ Business Question
 Objective
 
 - Track monthly sales performance and the cumulative growth of revenue over time. 
-- This helps the business spot seasonality, identify strong and weak months, and measure overall growth across the period.
+- This helps the business:
+1- Spot seasonality, identify strong and weak months 2- Measure overall growth across the period.
 
 SQL Concepts Used
 
@@ -618,6 +619,107 @@ Result
 -
 <img width="1610" height="953" alt="Screenshot 2026-10-12 190745" src="https://github.com/user-attachments/assets/b313aca8-7cc3-4dd6-bd7e-c5a4088420f2" />
 
+
+
+
+-
+-
+-
+
+Go
+-   
+
+Sales Performance by Day of the Week
+
+Business Question
+
+Which days of the week receive the most orders and generate the most revenue?
+
+Objective
+
+- Understand weekly buying patterns by comparing order volume and revenue for each weekday.
+- This helps the business:
+1- choose the best days for promotions, plan staffing and inventory 2- Schedule marketing campaigns when customers are most active.
+
+SQL Concepts Used:
+
+`INNER JOIN (3 tables)`,` DATENAME()`, `COUNT(DISTINCT)`, `SUM()`, `CAST()`, `GROUP BY`, `ORDER BY`
+
+Code
+
+
+    Select distinct
+         DATENAME(WEEKDAY,[order_approved_at]) week_day
+         ,count(o.[order_id])          As total_order 
+         ,cast(sum(p.[payment_value]) As int)   As Total_Revenue
+
+    From [Retail dataset].[dbo].[orders] as o 
+       inner join [Retail dataset].[dbo].[order_items] as oi
+          on o.[order_id] = oi.[order_id] 
+       inner join [Retail dataset].[dbo].[payments] as p
+          on oi.[order_id] = p.[order_id] 
+    GROUP BY
+         DATENAME(WEEKDAY, [order_approved_at])
+    ORDER BY
+         Total_order DESC;
+
+
+
+-
+
+Result
+-
+
+<img width="1612" height="942" alt="Screenshot 2026-10-12 191456" src="https://github.com/user-attachments/assets/2e3f2118-f2ca-49da-a6b5-8bc045db9f0a" />
+
+
+
+-
+-
+-
+
+Go
+-   
+
+Yearly Sales and Average Order Value
+
+Business Question
+
+What are the total sales, total number of orders, and average order value (AOV) for each year?
+
+Objective
+
+- Track yearly business performance and measure growth in revenue and order volume over time.
+-  Comparing the average order value across years also shows whether customers are spending more per order, which supports decisions on pricing, promotions, and long term planning.
+
+SQL Concepts Used
+
+`INNER JOIN`, `YEAR()`, `SUM()`, `COUNT(DISTINCT)`, `CAST()`,`GROUP BY`, `ORDER BY`
+
+Code
+
+     Select
+          year(o.[order_estimated_delivery_date])   As Years
+         ,sum(p.[payment_value])                    As Total_Sales
+         ,count(distinct o.[order_id])              As Total_Orders           
+         ,sum(p.[payment_value]) /
+         count(distinct o.[order_id])               As AVO
+    From [Retail dataset].[dbo].[payments] as p
+         inner join [Retail dataset].[dbo].[orders] as o
+           on p.order_id = o.order_id
+
+    Group by year(o.[order_estimated_delivery_date])
+    Order by Years;
+
+
+
+-
+
+Result
+-
+
+
+<img width="1600" height="947" alt="Screenshot 2026-10-12 192311" src="https://github.com/user-attachments/assets/58ee84ad-4e29-47f0-a8ba-5b784463db0c" />
 
 
 
