@@ -191,31 +191,33 @@ Objective
 cost relates to each product's performance.
 
 SQL Concepts Used
-- `SUM()`, `AVG()`, `COUNT()`, `COUNT(DISTINCT)`, `CAST()`
-- `INNER JOIN` (3 tables), `DENSE_RANK()`, `OVER (PARTITION BY ... ORDER BY ...)`
-- `GROUP BY`, `ORDER BY`
+`INNER JOIN` (4 tables), `SUM()`, `AVG()`, `COUNT()`, `COUNT(DISTINCT)`,
+`DENSE_RANK()`, `OVER (PARTITION BY ... ORDER BY ...)`, `CAST()`,
+`GROUP BY`, `ORDER BY`
 
 -
 Code 
 
      Select 
-          oi.[product_id]
-          ,pr.[product_category_name]
-          ,Dense_Rank() over (
-                  partition by pr.[product_category_name]
-                  order by sum (p.[payment_value]) desc
-                  ) As Proudct_Rank
-          ,count(distinct oi.[order_id])             As Total_Orders
-          ,count(oi.[order_item_id])                 As Total_Item
-          ,cast(avg(oi.[price])         as int)      As Avg_Price 
-          ,cast(sum (p.[payment_value]) as int)      As Total_Revenue
-           ,cast(avg([shipping_charges]) as int)      As Avg_Shipping
-      
-     From [Retail dataset].[dbo].[payments]                As p 
-       inner join  [Retail dataset].[dbo].[order_items]    As oi
-          on p.[order_id] = oi.[order_id]
-     inner join [Retail dataset].[dbo].[products]        As pr
-          on oi.[product_id] = pr.[product_id]
+            oi.[product_id]
+            ,pr.[product_category_name]
+            ,Dense_Rank() over (
+                    partition by pr.[product_category_name]
+                    order by sum (p.[payment_value]) desc
+                     ) As Proudct_Rank
+            ,count(distinct oi.[order_id])             As Total_Orders
+            ,count(oi.[order_item_id])                 As Total_Item
+            ,cast(avg(oi.[price])         as int)      As Avg_Price 
+            ,cast(sum (p.[payment_value]) as int)      As Total_Revenue
+            ,cast(avg([shipping_charges]) as int)      As Avg_Shipping
+    
+     From [Retail dataset].[dbo].[products]             As pr
+        inner join [Retail dataset].[dbo].[order_items] As oi
+            on   pr.[product_id] = oi.[product_id] 
+        inner join[Retail dataset].[dbo].[orders]       As o
+            on   oi.[order_id] = o.[order_id]
+        inner join [Retail dataset].[dbo].[payments]    AS p
+            on   o.[order_id] = p.[order_id] 
 
      Group by oi.[product_id], pr.[product_category_name]
       Order by pr.[product_category_name],Proudct_Rank ;
@@ -223,12 +225,8 @@ Code
 Result
 
 -
+<img width="1606" height="948" alt="Screenshot 2026-10-13 071446" src="https://github.com/user-attachments/assets/854b236d-7c0c-472a-a439-e093ae72ca7e" />
 
-<img width="1666" height="895" alt="Screenshot (285)" src="https://github.com/user-attachments/assets/fa3960d9-871b-4c1b-bba4-d14d12bddc67" />
-
--
-
-<img width="1605" height="940" alt="Screenshot 2026-10-12 122147" src="https://github.com/user-attachments/assets/f2e85117-f9d1-4f22-bdab-5ef53b89fa5f" />
 
 -
 -
@@ -251,61 +249,43 @@ Objective
 - This supports decisions on inventory planning, marketing focus, and pricing and shipping strategy.
 
 SQL Concepts Used
-`CTE (Common Table Expressions)`, `Subquery (Derived Table)`, `INNER JOIN`, `Window Functions (SUM() OVER with PARTITION BY`, `DENSE_RANK() OVER with PARTITION BY)`, `SUM()`, `COUNT(DISTINCT)`, `AVG()`, `NULLIF()`, `CAST()`, `GROUP BY`, `ORDER BY`
+`INNER JOIN` (4 tables), `Subquery (Derived Table)`, `SUM()`, `AVG()`,
+`COUNT()`, `COUNT(DISTINCT)`, `RANK()`, `OVER (ORDER BY ...)`, `CAST()`,
+`GROUP BY`, `ORDER BY`
+
 
 Code
 
 
     
 
-     WITH item_payment AS
-        (
-      Select
-              oi.[order_id]
-             ,oi.[order_item_id]
-             ,oi.[product_id]
-             ,oi.[price]
-             ,oi.[shipping_charges]
-             ,pay.[order_payment] * (oi.[price] + oi.[shipping_charges])
-                  / NULLIF(SUM(oi.[price] + oi.[shipping_charges])
-                        OVER (PARTITION BY oi.[order_id]), 0)   As payment_value
-      From [Retail dataset].[dbo].[order_items] As oi
-         inner join (
-               Select [order_id], sum([payment_value]) As order_payment
-               From [Retail dataset].[dbo].[payments]
-               Group by [order_id]
-                     ) As pay
-               on oi.[order_id] = pay.[order_id]
-         )
-      Select 
-              p.[product_id]
-              ,pr.[product_category_name]
-              ,Dense_Rank() over (
-              partition by pr.[product_category_name]
-              order by sum(p.[payment_value]) desc
-                 ) As Proudct_Rank
-              ,count(distinct p.[order_id])             As Total_Orders
-              ,count(p.[order_item_id])                 As Total_Item
-              ,cast(avg(p.[price])         as int)      As Avg_Price 
-              ,cast(sum(p.[payment_value]) as int)      As Total_Revenue
-              ,cast(avg(p.[shipping_charges]) as int)   As Avg_Shipping
-
-      From item_payment As p
-           inner join [Retail dataset].[dbo].[products] As pr
-              on p.[product_id] = pr.[product_id]
-
-      Group by p.[product_id], pr.[product_category_name]
-      Order by pr.[product_category_name], Proudct_Rank;
-
+    Select  
+           pr.[product_category_name]           As Category
+          ,rank() over(
+               order by cast(sum(p.payment_value) as int) desc
+                       ) as category_rank
+          ,(count(distinct pr.[product_id]))    As Total_Product
+          ,cast(sum(p.payment_value) as int)    As Total_Revenue
+          ,count(distinct o.[order_id])         As Total_Orders
+          ,count(oi.[order_item_id])             As Total_Item
+          ,cast(avg (oi.price)as int)           As AVG_Price
+          ,cast (sum (p.payment_value) 
+               / count( distinct o.[order_id]) as int)  As AVO 
+          ,cast(avg(oi.[shipping_charges])as int)       AS AVG_Shpping_Cost  
+    From [Retail dataset].[dbo].[products]    As pr
+         inner join [Retail dataset].[dbo].[order_items] As oi
+           on   pr.[product_id] = oi.[product_id] 
+         inner join[Retail dataset].[dbo].[orders]  As o
+           on   oi.[order_id] = o.[order_id]
+         inner join [Retail dataset].[dbo].[payments]  AS p
+           on   o.[order_id] = p.[order_id] 
+  
+    Group by pr.[product_category_name]
+    Order by category_rank Asc;
 
 Result
 
--
-<img width="1610" height="950" alt="Screenshot 2026-10-12 231304" src="https://github.com/user-attachments/assets/c10d92dd-4d14-4496-a910-8a16adecb30e" />
-
--
-
-<img width="1606" height="940" alt="Screenshot 2026-10-12 231401" src="https://github.com/user-attachments/assets/7cd6170f-19ca-49aa-8eb0-133d2cb7ca4e" />
+<img width="1604" height="949" alt="Screenshot 2026-10-13 071825" src="https://github.com/user-attachments/assets/4bcbe0fa-96cd-452e-a973-f05422bd60c3" />
 
 -
 -
@@ -614,12 +594,12 @@ Code
            ,MONTH(o.[order_approved_at])           AS  Months
            ,cast(sum(p.[Payment_value]) as int)    As Total_Sales
 
-         From [Retail dataset].[dbo].[orders]            As o
+         From [Retail dataset].[dbo].[payments]    AS p
+            inner join [Retail dataset].[dbo].[orders]       As o
+               on    p.[order_id] = o.[order_id]
             inner join [Retail dataset].[dbo].[order_items] As oi
-               on o.order_id = oi.order_id
-            inner join [Retail dataset].[dbo].[payments]    As p
-               on o.order_id = p.order_id
-
+               on   o.[order_id] = oi.[order_id]
+   
      Group by   YEAR(o.[order_approved_at])
             ,MONTH(o.[order_approved_at])
         ) As Monthly_sales
@@ -630,8 +610,8 @@ Code
 
 Result
 -
-<img width="1610" height="953" alt="Screenshot 2026-10-12 190745" src="https://github.com/user-attachments/assets/b313aca8-7cc3-4dd6-bd7e-c5a4088420f2" />
 
+<img width="1605" height="943" alt="Screenshot 2026-10-13 073140" src="https://github.com/user-attachments/assets/1a9cb63b-1f4a-4500-9b31-b0e5efb22b20" />
 
 
 
@@ -666,11 +646,11 @@ Code
          ,count(o.[order_id])          As total_order 
          ,cast(sum(p.[payment_value]) As int)   As Total_Revenue
 
-    From [Retail dataset].[dbo].[orders] as o 
-       inner join [Retail dataset].[dbo].[order_items] as oi
-          on o.[order_id] = oi.[order_id] 
-       inner join [Retail dataset].[dbo].[payments] as p
-          on oi.[order_id] = p.[order_id] 
+    From [Retail dataset].[dbo].[payments]    AS p
+       inner join [Retail dataset].[dbo].[orders]       As o
+          on    p.[order_id] = o.[order_id]
+       inner join [Retail dataset].[dbo].[order_items] As oi
+          on   o.[order_id] = oi.[order_id]
     GROUP BY
          DATENAME(WEEKDAY, [order_approved_at])
     ORDER BY
@@ -683,7 +663,8 @@ Code
 Result
 -
 
-<img width="1612" height="942" alt="Screenshot 2026-10-12 191456" src="https://github.com/user-attachments/assets/2e3f2118-f2ca-49da-a6b5-8bc045db9f0a" />
+<img width="1597" height="946" alt="Screenshot 2026-10-13 073641" src="https://github.com/user-attachments/assets/246a2c3a-93ee-46a4-bbc8-e70dd1207345" />
+
 
 
 
